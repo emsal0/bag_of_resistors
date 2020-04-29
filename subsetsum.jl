@@ -64,18 +64,13 @@ function subset_resistor(A::Array{T, 1}, tgt::T1) where {T <: Real, T1 <: Real}
                 union!(dp[i, l], dp[i, l-1])
             end
         end
-        if mod(l, 2) == 1
-            for i in 2:n+1
-                weight = A[i-1]
-                for j in dp[i-1, l]
+        for i in 2:n+1
+            weight = A[i-1]
+            for j in dp[i-1, l]
+                if mod(l, 2) == 1
                     push!(dp[i, l], round(j, digits=X))
                     push!(dp[i, l], round(j+weight, digits=X))
-                end
-            end
-        else
-            for i in 2:n+1
-                weight = A[i-1]
-                for j in dp[i-1, l]
+                else
                     s = 1/(1/j + 1/weight)
                     push!(dp[i, l], round(j, digits=X))
                     push!(dp[i, l], round(s, digits=X))
@@ -83,7 +78,6 @@ function subset_resistor(A::Array{T, 1}, tgt::T1) where {T <: Real, T1 <: Real}
             end
         end
     end
-
 
     result = in(tgt, dp[n+1, n+1])
 
@@ -113,14 +107,15 @@ function subset_resistor(A::Array{T, 1}, tgt::T1) where {T <: Real, T1 <: Real}
 
             weight = A[i-1]
             if in(j, dp[i, l]) && !in(j, dp[i-1, l])
-                s1 = soln
-                soln = "$weight $soln"
-                if s1 == ""
+                if length(soln) == 0
                     soln = "$weight"
+                else
+                    soln = "$weight $soln"
                 end
+
                 if mod(l, 2) == 1
                     j = round(j-weight, digits=X)
-                else 
+                else
                     j = round(1/(1/j - 1/weight), digits=X)
                 end
             end

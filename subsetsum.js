@@ -31,22 +31,18 @@ function subset_resistor(res_vals, tgt) {
                 dp[i][l] = new Set([...dp[i][l-1]]);
             }
         }
-        if (l % 2 == 0) {
-            for (let i = 1; i <= n; i++) {
-                let weight = res_vals[i-1];
-                for (let j of dp[i-1][l]) {
+        for (let i = 1; i <= n; i++) {
+            let weight = res_vals[i-1];
+            for (let j of dp[i-1][l]) {
+                if (l % 2 == 0) {
                     dp[i][l].add(convertResistance(j));
                     dp[i][l].add(convertResistance(j + weight));
-                }
-            }
-        } else {
-            for (let i = 1; i <= n; i++) {
-                let weight = res_vals[i-1];
-                for (let j of dp[i-1][l]) {
+                } else {
                     s = 1/(1/j + 1/weight);
                     dp[i][l].add(convertResistance(j));
                     dp[i][l].add(convertResistance(s));
                 }
+
             }
         }
     }
