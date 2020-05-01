@@ -27,21 +27,6 @@ function parseResistorSpec(resistorSpec) {
     }
 }
 
-class SceneEntity {
-
-}
-
-class Scene {
-
-    constructor(entities) {
-        this.entities = entities;
-    }
-
-    draw(ctx) {
-
-    }
-}
-
 class ResistorImage {
     constructor(img, endpoints) {
         this.img = img;
@@ -58,29 +43,68 @@ class ResistorDrawing {
     }
 
     getWidth() {
-        return this.img.width;
+        if (!!this.img) {
+            return this.img.width;
+        }
+        return 0;
     }
 
     getHeight() {
-        return this.img.height;
+        if (!!this.img) {
+            return this.img.height;
+        }
+        return 0;
     }
 
     getEndpoints(offset) {
-        // return this.img.endpoints;
-        return [];
+        return this.img.endpoints;
+        //return [];
     }
 
     draw(ctx, offset) {
-        ctx.fillText(this.resistance, offset[0], offset[1] + 7);
+        ctx.fillText(this.resistance, offset[0] + (1/12) * this.img.width, offset[1] + (2/8) * this.img.height);
         ctx.drawImage(img, offset[0], offset[1]);
     }
 }
 
-class ResistorDrawingGroup {
-    constructor(group, type, gap) {
+class SeriesDrawingGroup {
+    constructor(group, gap) {
         this.group = group;
-        this.type = type;
         this.gap = gap;
+    }
+
+    getWidth() {
+        let widths = this.group.map(e => e.getWidth());
+        let sumWidth = widths.reduce( (a, b) => a + b);
+        return sumWidth + this.gap * (this.group.length + 1);
+    }
+
+    getHeight() {
+        let heights = this.group.map(e => e.getHeight());
+        let maxHeight = heights.reduce( (a, b) => Math.max(a,b));
+        return maxHeight;
+    }
+
+    getEndpoints() {
+        let endpoints = {};
+        let group = this.group;
+
+        let width = this.getWidth();
+        let leftBeginning = this.group[0].getEndpoints().left;
+        let leftWidth = this.group[0].getWidth();
+        endpoints['left'] = {
+            x: leftBeginning['x'] * (leftWidth / width),
+            y: 1/2
+        };
+
+        let rightBeginning = group[group.length - 1].getEndpoints().right;
+        let rightWidth = group[group.length - 1].getWidth();
+        endpoints['right'] = {
+            x: ((width - (1 - rightBeginning['x']) * rightWidth)/width),
+            y: 1/2
+        };
+
+        return endpoints;
     }
 
     draw(ctx, offset) {
@@ -88,41 +112,148 @@ class ResistorDrawingGroup {
         if (!!offset) {
             gOffset = [...offset];
         }
+        let endpoints = this.getEndpoints();
+        let curEndpoints = this.group[0].getEndpoints();
+
+        let height = this.getHeight();
+        let width = this.getWidth();
+
+        let curLeftX    = gOffset[0] + curEndpoints['left']['x'] * this.group[0].getWidth();
+        let curLeftY    = gOffset[1] + curEndpoints['left']['y'] * this.group[0].getWidth();
+        let curRightX   = undefined;//gOffset[0] + curEndpoints['right']['x'] * obj.getWidth();
+        let curRightY   = undefined;//gOffset[1] + curEndpoints['right']['y'] * obj.getWidth();
+        
         for (let obj of this.group) {
-            if (this.type == "+") {
-                let height = this.getHeight();
-                gOffset[1] = (height - obj.getHeight()) / 2;
-                obj.draw(ctx, gOffset);
-                gOffset[0] += obj.getWidth() + this.gap;
-            } else if (this.type == "||") {
-                let width = this.getWidth();
-                gOffset[0] = (width - obj.getWidth()) / 2;
-                obj.draw(ctx, gOffset);
-                gOffset[1] += obj.getHeight();
+            let objEndpoints = obj.getEndpoints();
+
+            let objWidth = obj.getWidth();
+            let objHeight = obj.getHeight();
+
+
+            gOffset[1] = (height - obj.getHeight()) / 2;
+
+            curLeftX = (gOffset[0] + objEndpoints['left']['x'] * objWidth);
+            curLeftY = (gOffset[1] + objEndpoints['left']['y'] * objHeight);
+
+            if (!!curRightX && !!curRightY) {
+                ctx.beginPath();
+
+                ctx.moveTo(curLeftX, curLeftY);
+                ctx.lineTo(curRightX, curRightY); // previous right endpoint
+
+                ctx.stroke();
             }
-        }
+            curRightX = gOffset[0] + objEndpoints['right']['x'] * objWidth;
+            curRightY = gOffset[1] + objEndpoints['right']['y'] * objHeight;
+
+            obj.draw(ctx, gOffset);
+            gOffset[0] += obj.getWidth() + this.gap;
+        } 
+    }
+}
+
+class ParallelDrawingGroup {
+    constructor(group, gap) {
+        this.group = group;
+        this.gap = gap;
     }
 
     getWidth() {
         let widths = this.group.map(e => e.getWidth());
-        if (this.type == "+") {
-            let sumWidth = widths.reduce( (a, b) => a + b);
-            return sumWidth + this.gap * (this.group.length + 1);
-        } else if (this.type == "||" ) {
-            let maxWidth = widths.reduce( (a, b) => Math.max(a,b));
-            return maxWidth + this.gap * 2;
-        }
+        let maxWidth = widths.reduce( (a, b) => Math.max(a,b));
+        return maxWidth + this.gap * 2;
     }
 
     getHeight() {
         let heights = this.group.map(e => e.getHeight());
-        if (this.type == "+") {
-            let maxHeight = heights.reduce( (a, b) => Math.max(a,b));
-            return maxHeight;
-        } else if (this.type == "||" ) {
-            let sumHeight = heights.reduce( (a, b) => a + b);
-            return sumHeight;
+        let sumHeight = heights.reduce( (a, b) => a + b);
+        return sumHeight;
+    }
+
+    getEndpoints() {
+        let maxWidthObj = new ResistorDrawing();
+        for (let obj of this.group) {
+            if (obj.getWidth() > maxWidthObj.getWidth()) {
+                maxWidthObj = obj;
+            }
         }
+
+        return {
+            left: {
+                x: maxWidthObj.getEndpoints()['left']['x'],
+                y: 1/2
+            },
+            right: {
+                x: maxWidthObj.getEndpoints()['right']['x'],
+                y: 1/2
+            }
+        }
+    }
+
+    draw(ctx, offset) {
+        let gOffset = [0, 0];
+        if (!!offset) {
+            gOffset = [...offset];
+        }
+
+        let gOffsetInitial = [...gOffset];
+        let endpoints = this.getEndpoints();
+
+        let height = this.getHeight();
+        let width = this.getWidth();
+
+        let leftX = offset[0] + endpoints['left'].x * width;
+        let rightX = offset[0] + endpoints['right'].x * width;
+
+        let initObj = this.group[0];
+        let initEndpoints = initObj.getEndpoints();
+
+        let curLeftX    = gOffset[0] + initEndpoints['left']['x'] * initObj.getWidth();
+        let curLeftY    = gOffset[1] + initEndpoints['left']['y'] * initObj.getWidth();
+        let curRightX   = gOffset[0] + initEndpoints['right']['x'] * initObj.getWidth();
+        let curRightY   = gOffset[1] + initEndpoints['right']['y'] * initObj.getWidth();
+
+        for (let obj of this.group) {
+            let objEndpoints = obj.getEndpoints();
+
+            let objWidth = obj.getWidth();
+            let objHeight = obj.getHeight();
+
+            gOffset[0] = (width - objWidth) / 2;
+
+            curLeftX = (gOffset[0] + objEndpoints['left']['x'] * objWidth);
+            curLeftY = (gOffset[1] + objEndpoints['left']['y'] * objHeight);
+            ctx.beginPath();
+            ctx.moveTo(curLeftX, curLeftY);
+            ctx.lineTo(leftX, curLeftY);
+            ctx.stroke();
+
+            curRightX = (gOffset[0] + objEndpoints['right']['x'] * objWidth);
+            curRightY = (gOffset[1] + objEndpoints['right']['y'] * objHeight);
+            ctx.beginPath();
+            ctx.moveTo(curRightX, curRightY);
+            ctx.lineTo(rightX, curRightY);
+            ctx.stroke();
+
+            obj.draw(ctx, gOffset);
+            gOffset[1] += objHeight;
+        }
+
+        let firstY = gOffsetInitial[1] + initEndpoints['left']['y'] 
+            * initObj.getHeight();
+
+        let lastObj = this.group[this.group.length - 1];
+        let lastY = curLeftY;
+
+        ctx.beginPath();
+        ctx.moveTo(leftX, lastY);
+        ctx.lineTo(leftX, firstY);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(rightX, lastY);
+        ctx.lineTo(rightX, firstY);
+        ctx.stroke();
     }
 }
 
@@ -133,14 +264,14 @@ function drawResistorSpec(resistorSpec, resistorImg) {
             if (stack.length <= 1) {
                 continue;
             } else {
-                let s = new ResistorDrawingGroup(stack, type="+", gap=0.0);
+                let s = new SeriesDrawingGroup(stack, gap=0.0);
                 stack = [s];
             }
         } else if (o === "||") {
             if (stack.length <= 1) {
                 continue;
             } else {
-                let s = new ResistorDrawingGroup(stack, type="||", gap=0.0);
+                let s = new ParallelDrawingGroup(stack, gap=0.0);
                 stack = [s];
             }
         } else {

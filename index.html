@@ -1,5 +1,5 @@
 <head>
-    <script src="./subsetsum.js" type="text/javascript"></script>
+    <script src="./resistors.js" type="text/javascript"></script>
     <script src="./drawing.js" type="text/javascript"></script>
 </head>
 <body>
@@ -10,8 +10,20 @@
 
     <script type="text/javascript">
         window.addEventListener('load', function() {
+            let workspace = document.getElementById("workspace");
+            let ctx = workspace.getContext("2d");
 
-        let ctx = document.getElementById("workspace").getContext("2d");
+            img = new Image();
+            img.src = "https://upload.wikimedia.org/wikipedia/commons/e/ee/Resistor_symbol_America.svg";
+
+            // resImg = new ResistorImage(img, {left: [{x: 1/8,y: 1/2}], right: [{x: 7/8, y: 1/2}]})
+
+            img.onload = function() {
+                resImg = new ResistorImage(img, {left: {x: 1/8, y: 1/2}, right: {x: 7/8, y: 1/2}})
+                resImgGrp = drawResistorSpec([50, 50, "+", 300, "||", 2, "+"], resImg)
+                // resImgGrp = drawResistorSpec([2, 3, 6, "||"], img)
+                resImgGrp.draw(ctx, [0, 0]);
+            }
 
         });
     </script>
