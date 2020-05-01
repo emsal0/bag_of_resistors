@@ -62,7 +62,8 @@ class ResistorDrawing {
     }
 
     draw(ctx, offset) {
-        ctx.fillText(this.resistance, offset[0] + (1/12) * this.img.width, offset[1] + (2/8) * this.img.height);
+        ctx.fillText(this.resistance, offset[0] + 
+            (1/12) * this.img.width, offset[1] + (2/8) * this.img.height);
         ctx.drawImage(img, offset[0], offset[1]);
     }
 }
@@ -118,10 +119,12 @@ class SeriesDrawingGroup {
         let height = this.getHeight();
         let width = this.getWidth();
 
-        let curLeftX    = gOffset[0] + curEndpoints['left']['x'] * this.group[0].getWidth();
-        let curLeftY    = gOffset[1] + curEndpoints['left']['y'] * this.group[0].getWidth();
-        let curRightX   = undefined;//gOffset[0] + curEndpoints['right']['x'] * obj.getWidth();
-        let curRightY   = undefined;//gOffset[1] + curEndpoints['right']['y'] * obj.getWidth();
+        let curLeftX = gOffset[0]
+            + curEndpoints['left']['x'] * this.group[0].getWidth();
+        let curLeftY = gOffset[1]
+            + curEndpoints['left']['y'] * this.group[0].getWidth();
+        let curRightX;
+        let curRightY;
         
         for (let obj of this.group) {
             let objEndpoints = obj.getEndpoints();
@@ -208,10 +211,14 @@ class ParallelDrawingGroup {
         let initObj = this.group[0];
         let initEndpoints = initObj.getEndpoints();
 
-        let curLeftX    = gOffset[0] + initEndpoints['left']['x'] * initObj.getWidth();
-        let curLeftY    = gOffset[1] + initEndpoints['left']['y'] * initObj.getWidth();
-        let curRightX   = gOffset[0] + initEndpoints['right']['x'] * initObj.getWidth();
-        let curRightY   = gOffset[1] + initEndpoints['right']['y'] * initObj.getWidth();
+        let curLeftX = gOffset[0]
+            + initEndpoints['left']['x'] * initObj.getWidth();
+        let curLeftY = gOffset[1]
+            + initEndpoints['left']['y'] * initObj.getWidth();
+        let curRightX = gOffset[0]
+            + initEndpoints['right']['x'] * initObj.getWidth();
+        let curRightY = gOffset[1]
+            + initEndpoints['right']['y'] * initObj.getWidth();
 
         for (let obj of this.group) {
             let objEndpoints = obj.getEndpoints();

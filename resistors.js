@@ -9,6 +9,17 @@ function max_signif(arr) {
     throw new Error('Digits are too precise');
 }
 
+function setHasFloat(set, tgt, digits) {
+    let tgtRounded = parseFloat(tgt.toFixed(digits));
+    for (let obj of set) {
+        let specRounded = parseFloat(obj.toFixed(digits));
+        if (specRounded == tgtRounded) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function subset_resistor(res_vals, tgt) {
     let n = res_vals.length
     let X = max_signif(res_vals) + 1;
@@ -52,7 +63,11 @@ function subset_resistor(res_vals, tgt) {
         let soln = [];
         let j = tgt;
         let l = n;
-        for (i = n; i >= 1; i--) {
+        let i = n;
+        while (l >= 0) {
+            if (i <= 0) {
+                break;
+            }
             if (j == 0) {
                 break;
             }
@@ -70,15 +85,15 @@ function subset_resistor(res_vals, tgt) {
             }
 
             let weight = res_vals[i-1];
-            if (dp[i][l].has(j) && !(dp[i-1][l].has(j))) {
+            if (setHasFloat(dp[i][l], j, X) && !setHasFloat(dp[i-1][l], j, X)) {
                 soln = [weight, ...soln]
                 if (l % 2 == 0) {
                     j = convertResistance(j-weight);
                 } else {
-                    j = convertResistance(1/(1/j - 1/weight))
+                    j = 1/(1/j - 1/weight);
                 }
             }
-            // console.log(`i = ${i}, l = ${l}, j = ${j}`);
+            i--;
         }
         return { result: true, soln: soln };
     } else {
