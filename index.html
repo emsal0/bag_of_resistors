@@ -4,6 +4,12 @@
 </head>
 <body>
 
+    <form id="resinput">
+        <input id="bagInput" type="text" name="bag" value="[]"/>
+        <input id="targetInput" type="text" name="target" value="100" />
+        <input type="submit" value="Calculate" />
+    </form>
+
     <canvas id="workspace">
 
     </canvas>
@@ -16,14 +22,27 @@
             img = new Image();
             img.src = "https://upload.wikimedia.org/wikipedia/commons/e/ee/Resistor_symbol_America.svg";
 
-            // resImg = new ResistorImage(img, {left: [{x: 1/8,y: 1/2}], right: [{x: 7/8, y: 1/2}]})
+            let form = document.getElementById("resinput");
 
             img.onload = function() {
+                event.preventDefault();
                 resImg = new ResistorImage(img, {left: {x: 1/8, y: 1/2}, right: {x: 7/8, y: 1/2}})
-                resImgGrp = drawResistorSpec([50, 50, "+", 300, "||", 2, "+"], resImg)
-                // resImgGrp = drawResistorSpec([2, 3, 6, "||"], img)
-                resImgGrp.draw(ctx, [0, 0]);
+                form.onsubmit = function(event) {
+                    event.preventDefault();
+                    let bag = eval(document.getElementById("bagInput").value);
+                    let target = parseFloat(document.getElementById("targetInput").value);
+
+                    let soln = subset_resistor(bag, target);
+                    if (soln.result) {
+                        ctx.clearRect(0, 0, workspace.width, workspace.height);
+                        let solnStack = soln.soln;
+                        resImgGrp = drawResistorSpec(solnStack, resImg)
+                        resImgGrp.draw(ctx, [0, 0]);
+                    }
+                }
             }
+
+            // resImg = new ResistorImage(img, {left: [{x: 1/8,y: 1/2}], right: [{x: 7/8, y: 1/2}]})
 
         });
     </script>
