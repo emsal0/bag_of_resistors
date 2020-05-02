@@ -65,7 +65,7 @@ function subset_resistor_redux_main(res_vals, tgt, visitedSolns, digits) {
         let n = curVals.length;
         let values = curVals.map(item =>
             parseFloat(convertResistance(item['value'])));
-        let key = values.slice(0).sort().join();
+        let key = values.slice(0).map(convertResistance).sort().join();
         if (visitedSolns.has(key)) {
             continue;
         } else if (!!values.find(j => approxEquals(j,tgt))) {
@@ -121,7 +121,7 @@ function subset_resistor_redux(res_vals, tgt) {
         };
     });
 
-    let X = max_signif(res_vals) + 1;
+    let X = max_signif(res_vals) + 5;
     //console.log(`X = ${X}`);
     let visitedSolns = new Set();
     return subset_resistor_redux_main(resValsFormatted, tgt, visitedSolns, X);
