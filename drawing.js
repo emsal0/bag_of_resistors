@@ -63,7 +63,7 @@ class ResistorDrawing {
 
     draw(ctx, offset) {
         ctx.fillText(this.resistance, offset[0] + 
-            (1/12) * this.img.width, offset[1] + (2/8) * this.img.height);
+            (2/12) * this.img.width, offset[1] + (2/8) * this.img.height);
         ctx.drawImage(img, offset[0], offset[1]);
     }
 }
@@ -113,6 +113,7 @@ class SeriesDrawingGroup {
         if (!!offset) {
             gOffset = [...offset];
         }
+        let gOffsetInitial = [...gOffset];
         let endpoints = this.getEndpoints();
         let curEndpoints = this.group[0].getEndpoints();
 
@@ -133,7 +134,7 @@ class SeriesDrawingGroup {
             let objHeight = obj.getHeight();
 
 
-            gOffset[1] = (height - obj.getHeight()) / 2;
+            gOffset[1] = gOffsetInitial[1] + (height - obj.getHeight()) / 2;
 
             curLeftX = (gOffset[0] + objEndpoints['left']['x'] * objWidth);
             curLeftY = (gOffset[1] + objEndpoints['left']['y'] * objHeight);
@@ -226,7 +227,7 @@ class ParallelDrawingGroup {
             let objWidth = obj.getWidth();
             let objHeight = obj.getHeight();
 
-            gOffset[0] = (width - objWidth) / 2;
+            gOffset[0] = gOffsetInitial[0] + (width - objWidth) / 2;
 
             curLeftX = (gOffset[0] + objEndpoints['left']['x'] * objWidth);
             curLeftY = (gOffset[1] + objEndpoints['left']['y'] * objHeight);
@@ -267,7 +268,9 @@ class ParallelDrawingGroup {
 function drawResistorSpec(resistorSpec, resistorImg) {
     let stack = [];
     for (let o of resistorSpec) {
-        if (o === "+") {
+        if (typeof(o) === typeof([])) {
+            stack.push(drawResistorSpec(o, resistorImg));
+        } else if (o === "+") {
             if (stack.length <= 1) {
                 continue;
             } else {

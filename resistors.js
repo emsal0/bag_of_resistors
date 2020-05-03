@@ -52,8 +52,7 @@ function processSteps(leftSteps, rightSteps, op) {
     }
 }
 
-function subset_resistor_redux_main(res_vals, tgt, visitedSolns, digits) {
-
+function subset_resistor_redux_main(res_vals, tgt, visitedSolns, digits, debug=false) {
     let queue = [];
     queue.push(res_vals);
 
@@ -66,6 +65,9 @@ function subset_resistor_redux_main(res_vals, tgt, visitedSolns, digits) {
         let values = curVals.map(item =>
             parseFloat(convertResistance(item['value'])));
         let key = values.slice(0).map(convertResistance).sort().join();
+        if (debug) {
+            console.log(key);
+        }
         if (visitedSolns.has(key)) {
             continue;
         } else if (!!values.find(j => approxEquals(j,tgt))) {
@@ -79,7 +81,7 @@ function subset_resistor_redux_main(res_vals, tgt, visitedSolns, digits) {
             let left = curVals[i];
             let localVals = curVals.slice(0);
             localVals.splice(i, 1);
-            for (let j = i; j < localVals.length; j++) {
+            for (let j = 0; j < localVals.length; j++) {
                 let right = localVals[j];
                 localVals.splice(j, 1);
 
@@ -112,7 +114,7 @@ function subset_resistor_redux_main(res_vals, tgt, visitedSolns, digits) {
     return false;
 }
 
-function subset_resistor_redux(res_vals, tgt) {
+function subset_resistor_redux(res_vals, tgt, debug=false) {
 
     let resValsFormatted = res_vals.map(v => {
         return {
@@ -124,7 +126,8 @@ function subset_resistor_redux(res_vals, tgt) {
     let X = max_signif(res_vals) + 5;
     //console.log(`X = ${X}`);
     let visitedSolns = new Set();
-    return subset_resistor_redux_main(resValsFormatted, tgt, visitedSolns, X);
+    return subset_resistor_redux_main(resValsFormatted, tgt, visitedSolns, X,
+                                        debug);
 }
 
 function subset_resistor(res_vals, tgt) {
