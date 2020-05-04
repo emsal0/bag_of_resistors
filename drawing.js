@@ -1,32 +1,3 @@
-function parseResistorSpec(resistorSpec) {
-    let stack = [];
-    for (let o of resistorSpec) {
-        if (o === "+") {
-            if (stack.length <= 1) {
-                continue;
-            } else {
-                let s = "(" + stack.join("+") + ")";
-                stack = [s];
-            }
-        } else if (o === "||") {
-            if (stack.length <= 1) {
-                continue;
-            } else {
-                let s = "(" + stack.join("||") + ")";
-                stack = [s];
-            }
-        } else {
-            // assume type float
-            stack.push(o);
-        }
-    }
-    if (stack.length == 1) {
-        return stack[0];
-    } else {
-        throw new Error("Invalid stack!");
-    }
-}
-
 class ResistorImage {
     constructor(img, endpoints) {
         this.img = img;
@@ -257,7 +228,7 @@ class ParallelDrawingGroup {
         ctx.moveTo(leftX, lastY);
         ctx.lineTo(leftX, firstY);
         ctx.stroke();
-        
+
         ctx.beginPath();
         ctx.moveTo(rightX, lastY);
         ctx.lineTo(rightX, firstY);
@@ -295,3 +266,35 @@ function drawResistorSpec(resistorSpec, resistorImg) {
         throw new Error("Invalid stack!");
     }
 }
+
+function parseResistorSpec(resistorSpec) {
+    let stack = [];
+    for (let o of resistorSpec) {
+        if (typeof(o) === typeof([])) {
+            stack.push(parseResistorSpec(o, resistorImg));
+        } else if (o === "+") {
+            if (stack.length <= 1) {
+                continue;
+            } else {
+                let s = "(" + stack.join("+") + ")";
+                stack = [s];
+            }
+        } else if (o === "||") {
+            if (stack.length <= 1) {
+                continue;
+            } else {
+                let s = "(" + stack.join("||") + ")";
+                stack = [s];
+            }
+        } else {
+            // assume type float
+            stack.push(o);
+        }
+    }
+    if (stack.length == 1) {
+        return stack[0];
+    } else {
+        throw new Error("Invalid stack!");
+    }
+}
+

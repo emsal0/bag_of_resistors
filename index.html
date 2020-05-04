@@ -2,44 +2,135 @@
     <meta charset="UTF-8">
     <script src="./resistors.js" type="text/javascript"></script>
     <script src="./drawing.js" type="text/javascript"></script>
+    <style>
+    #resistor_section {
+        width: 30%;
+    }
+
+    #resistor_section .resistor_row {
+        margin-left: 10%;
+    }
+
+    #workspace {
+        margin-top:30px;
+    }
+
+    #errorArea {
+        color: red;
+    }
+
+    </style>
 </head>
 <body>
 
-    <h1>If I have a bag of resistors, can I attain this target resistance?</h1>
+    <h1>If you have a bag of resistors, can you attain this target resistance?</h1>
 
-    <form id="resinput">
-        <p>Enter resistor values (comma-separated) here: <input id="bagInput" type="text" name="bag" value="200,300,600"/></p>
-        <p>Enter target resistance here: <input id="targetInput" type="text" name="target" value="100" /></p>
-        <p><input type="submit" value="Calculate" /></p>
-    </form>
+    <div id="resistor_section">
+    <h2>Add to bag: </h2>
+    <p class="resistor_row">
+    <button value="100"    onclick="addToBag(this)"> 100  ohms </button>
+    <button value="470"    onclick="addToBag(this)"> 470  ohms </button>
+    </p>
+
+    <p class="resistor_row">
+    <button value="1000"   onclick="addToBag(this)"> 1000 ohms </button>
+    <button value="2200"   onclick="addToBag(this)"> 2200 ohms </button>
+    <button value="4700"   onclick="addToBag(this)"> 4.7K ohms </button>
+    </p>
+
+    <p class="resistor_row">
+    <button value="10000"  onclick="addToBag(this)"> 10K  ohms </button>
+    <button value="22000"  onclick="addToBag(this)"> 22K  ohms </button>
+    <button value="47000"  onclick="addToBag(this)"> 47K  ohms </button>
+    <button value="100000" onclick="addToBag(this)"> 100K ohms </button>
+    </p>
+
+    <p>Add custom value:
+    <input id="bagInput" type="text" name="bag" value="10"
+        onkeydown="addInputToBag(this)"/> ohms
+    <button onclick="addInputToBagButton('bagInput')">Add</button>
+    </p>
+
+    <p>Target resistance: <input id="targetInput" value="100"></input></p>
+
+    <p><button onclick="clearBag()">Clear bag</button></p>
+    <p id="submit"><button id="submitB">Calculate</button></p>
+    </div>
+    <div id="bagDisplay"></div>
+    <div id="errorArea"></div>
 
     <canvas id="workspace" width=1000 height=1000></canvas>
 
     <script type="text/javascript">
+        bag = [];
+        let bagDisplayElt = document.getElementById("bagDisplay");
+        let errorAreaElt = document.getElementById("errorArea");
+
+        function addToBag(elt) {
+            let val = parseFloat(elt.value);
+            bag.push(val);
+            changeBagDisplay();
+        }
+
+        function addInputToBag(elt) {
+            if (event.key === 'Enter') {
+                addToBag(elt);
+            }
+        }
+
+        function addInputToBagButton(eltId) {
+            let elt = document.getElementById(eltId);
+            addToBag(elt);
+        }
+
+        function clearBag() {
+            bag.splice(0);
+            changeBagDisplay();
+            errorAreaElt.innerHTML = "";
+        }
+
+        function changeBagDisplay() {
+            bagDisplayElt.innerHTML = `Current bag:
+                [${bag.map(f => f.toString() + 'Ω').join(",")}]`;
+        }
+
         window.addEventListener('load', function() {
+            changeBagDisplay();
+            let resistorButtons = document.getElementsByClassName("resistor");
+            for (let elt of resistorButtons) {
+                elt.onclick = addToBag;
+            }
+
             let workspace = document.getElementById("workspace");
             ctx = workspace.getContext("2d");
 
             img = new Image();
-            img.src = "https://upload.wikimedia.org/wikipedia/commons/e/ee/Resistor_symbol_America.svg";
+            img.src = "./resistor.svg";
 
-            let form = document.getElementById("resinput");
+            let form = document.getElementById("submitB");
 
             img.onload = function() {
                 event.preventDefault();
                 resImg = new ResistorImage(img, {left: {x: 1/8, y: 1/2}, right: {x: 7/8, y: 1/2}})
-                form.onsubmit = function(event) {
+                form.onclick = function(event) {
                     event.preventDefault();
-                    let bag = document.getElementById("bagInput").value.split(",").map(parseFloat)
+                    if (bag.length == 0) {
+                        errorAreaElt.innerHTML = `Bag must have at least one resistor.`;
+                        return;
+                    }
                     let target = parseFloat(document.getElementById("targetInput").value);
 
-                    let soln = subset_resistor_redux(bag, target);
+                    let soln = subsetResistor(bag, target);
                     console.log(soln);
+                    ctx.clearRect(0, 0, workspace.width, workspace.height);
                     if (!!soln) {
-                        ctx.clearRect(0, 0, workspace.width, workspace.height);
+                        errorAreaElt.innerHTML = "";
                         let solnStack = soln.steps;
                         resImgGrp = drawResistorSpec(solnStack, resImg);
                         resImgGrp.draw(ctx, [0, 0]);
+                    } else {
+                        errorAreaElt.innerHTML = `No configuration found for bag:
+                            ${JSON.stringify(bag)}, target: ${target}`;
                     }
                 }
             }

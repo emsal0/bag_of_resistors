@@ -52,7 +52,7 @@ function processSteps(leftSteps, rightSteps, op) {
     }
 }
 
-function subset_resistor_redux_main(res_vals, tgt, visitedSolns, digits, debug=false) {
+function subsetResistorMain(res_vals, tgt, visitedSolns, digits, debug=false) {
     let queue = [];
     queue.push(res_vals);
 
@@ -114,7 +114,7 @@ function subset_resistor_redux_main(res_vals, tgt, visitedSolns, digits, debug=f
     return false;
 }
 
-function subset_resistor_redux(res_vals, tgt, debug=false) {
+function subsetResistor(res_vals, tgt, debug=false) {
 
     let resValsFormatted = res_vals.map(v => {
         return {
@@ -126,11 +126,11 @@ function subset_resistor_redux(res_vals, tgt, debug=false) {
     let X = max_signif(res_vals) + 5;
     //console.log(`X = ${X}`);
     let visitedSolns = new Set();
-    return subset_resistor_redux_main(resValsFormatted, tgt, visitedSolns, X,
+    return subsetResistorMain(resValsFormatted, tgt, visitedSolns, X,
                                         debug);
 }
 
-function subset_resistor(res_vals, tgt) {
+function subsetResistorDeprecated(res_vals, tgt) {
     let n = res_vals.length
     let X = max_signif(res_vals) + 1;
 
