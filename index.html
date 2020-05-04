@@ -53,8 +53,8 @@
 
     <p>Target resistance: <input id="targetInput" value="100"></input></p>
 
-    <p><button onclick="clearBag()">Reset bag</button></p>
     <p id="submit"><button id="submitB">Calculate</button></p>
+    <p><button onclick="clearBag()">Reset bag</button></p>
     </div>
     <div id="bagDisplay"></div>
     <div id="errorArea"></div>
@@ -68,8 +68,10 @@
 
         function addToBag(elt) {
             let val = parseFloat(elt.value);
-            bag.push(val);
-            changeBagDisplay();
+            if (!!val) {
+                bag.push(val);
+                changeBagDisplay();
+            }
         }
 
         function addInputToBag(elt) {
