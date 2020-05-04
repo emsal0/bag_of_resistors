@@ -53,7 +53,7 @@
 
     <p>Target resistance: <input id="targetInput" value="100"></input></p>
 
-    <p><button onclick="clearBag()">Clear bag</button></p>
+    <p><button onclick="clearBag()">Reset bag</button></p>
     <p id="submit"><button id="submitB">Calculate</button></p>
     </div>
     <div id="bagDisplay"></div>
@@ -86,6 +86,9 @@
         function clearBag() {
             bag.splice(0);
             changeBagDisplay();
+            if(!!ctx) {
+                ctx.clearRect(0, 0, workspace.width, workspace.height);
+            }
             errorAreaElt.innerHTML = "";
         }
 
@@ -101,7 +104,7 @@
                 elt.onclick = addToBag;
             }
 
-            let workspace = document.getElementById("workspace");
+            workspace = document.getElementById("workspace");
             ctx = workspace.getContext("2d");
 
             img = new Image();
