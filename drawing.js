@@ -271,7 +271,7 @@ function parseResistorSpec(resistorSpec) {
     let stack = [];
     for (let o of resistorSpec) {
         if (typeof(o) === typeof([])) {
-            stack.push(parseResistorSpec(o, resistorImg));
+            stack.push(parseResistorSpec(o));
         } else if (o === "+") {
             if (stack.length <= 1) {
                 continue;
