@@ -2,13 +2,20 @@
     <meta charset="UTF-8">
     <script src="./resistors.js" type="text/javascript"></script>
     <script src="./drawing.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
     <style>
     #resistor_section {
         width: 30%;
+        text-align:center;
+        margin-bottom:30px;
     }
 
     #resistor_section .resistor_row {
         margin-left: 10%;
+    }
+
+    #interface {
+        margin-left: 20px;
     }
 
     #workspace {
@@ -23,41 +30,74 @@
 </head>
 <body>
 
+    <div class="content" id="interface">
     <h1>If you have a bag of resistors, can you attain this target resistance?</h1>
 
+    <h3>Add to bag: </h3>
     <div id="resistor_section">
-    <h2>Add to bag: </h2>
     <p class="resistor_row">
-    <button value="100"    onclick="addToBag(this)"> 100  ohms </button>
-    <button value="470"    onclick="addToBag(this)"> 470  ohms </button>
+    <button class="button is-small" value="1"    onclick="addToBag(this)"> 1   </button>
+    <button class="button is-small" value="2"    onclick="addToBag(this)"> 2   </button>
+    <button class="button is-small" value="3"    onclick="addToBag(this)"> 3   </button>
+    <button class="button is-small" value="4"    onclick="addToBag(this)"> 4   </button>
+    <button class="button is-small" value="5"    onclick="addToBag(this)"> 5   </button>
+    <button class="button is-small" value="6"    onclick="addToBag(this)"> 6   </button>
+    <button class="button is-small" value="7"    onclick="addToBag(this)"> 7   </button>
+    <button class="button is-small" value="8"    onclick="addToBag(this)"> 8   </button>
+    <button class="button is-small" value="9"    onclick="addToBag(this)"> 9   </button>
+    <button class="button is-small" value="10"    onclick="addToBag(this)"> 10   </button>
     </p>
 
     <p class="resistor_row">
-    <button value="1000"   onclick="addToBag(this)"> 1000 ohms </button>
-    <button value="2200"   onclick="addToBag(this)"> 2200 ohms </button>
-    <button value="4700"   onclick="addToBag(this)"> 4.7K ohms </button>
+    <button class="button is-small" value="20"    onclick="addToBag(this)"> 20   </button>
+    <button class="button is-small" value="30"    onclick="addToBag(this)"> 30   </button>
+    <button class="button is-small" value="40"    onclick="addToBag(this)"> 40   </button>
+    <button class="button is-small" value="50"    onclick="addToBag(this)"> 50   </button>
+    <button class="button is-small" value="60"    onclick="addToBag(this)"> 60   </button>
+    <button class="button is-small" value="70"    onclick="addToBag(this)"> 70   </button>
+    <button class="button is-small" value="80"    onclick="addToBag(this)"> 80   </button>
+    <button class="button is-small" value="90"    onclick="addToBag(this)"> 90   </button>
     </p>
 
     <p class="resistor_row">
-    <button value="10000"  onclick="addToBag(this)"> 10K  ohms </button>
-    <button value="22000"  onclick="addToBag(this)"> 22K  ohms </button>
-    <button value="47000"  onclick="addToBag(this)"> 47K  ohms </button>
-    <button value="100000" onclick="addToBag(this)"> 100K ohms </button>
+    <button class="button is-small" value="100"    onclick="addToBag(this)"> 100   </button>
+    <button class="button is-small" value="150"    onclick="addToBag(this)"> 150   </button>
+    <button class="button is-small" value="220"    onclick="addToBag(this)"> 220   </button>
+    <button class="button is-small" value="220"    onclick="addToBag(this)"> 330   </button>
+    <button class="button is-small" value="470"    onclick="addToBag(this)"> 470   </button>
+    <button class="button is-small" value="680"    onclick="addToBag(this)"> 680   </button>
     </p>
 
+    <p class="resistor_row">
+    <button class="button is-small" value="1000"   onclick="addToBag(this)"> 1K  </button>
+    <button class="button is-small" value="2200"   onclick="addToBag(this)"> 2.2K  </button>
+    <button class="button is-small" value="4700"   onclick="addToBag(this)"> 4.7K  </button>
+    </p>
+
+    <p class="resistor_row">
+    <button class="button is-small" value="10000"  onclick="addToBag(this)"> 10K   </button>
+    <button class="button is-small" value="22000"  onclick="addToBag(this)"> 22K   </button>
+    <button class="button is-small" value="47000"  onclick="addToBag(this)"> 47K   </button>
+    <button class="button is-small" value="100000" onclick="addToBag(this)"> 100K  </button>
+    </p>
+    </div>
+
+    <div>
     <p>Add custom value:
     <input id="bagInput" type="text" name="bag" value="10"
         onkeydown="addInputToBag(this)"/> ohms
-    <button onclick="addInputToBagButton('bagInput')">Add</button>
+    <button class="button is-small" onclick="addInputToBagButton('bagInput')">Add</button>
     </p>
+    </div>
 
     <p>Target resistance: <input id="targetInput" value="100"></input></p>
 
-    <p id="submit"><button id="submitB">Calculate</button></p>
-    <p><button onclick="clearBag()">Reset bag</button></p>
+    <p id="submit"><button class="button" id="submitB">Calculate</button></p>
+    <p><button class="button" onclick="clearBag()">Reset bag</button></p>
     </div>
     <div id="bagDisplay"></div>
     <div id="errorArea"></div>
+    </div>
 
     <canvas id="workspace" width=1000 height=1000></canvas>
 
