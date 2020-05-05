@@ -104,9 +104,9 @@ function subsetResistorMain(res_vals, tgt, visitedSolns, digits, debug=false) {
                 queue.push(localVals.concat(seriesSoln));
                 queue.push(localVals.concat(parallelSoln));
 
-                localVals.push(right);
+                localVals.splice(j, 0, right);
             }
-            localVals.push(left);
+            localVals.push(i, 0, left);
         }
         visitedSolns.add(key);
     }
