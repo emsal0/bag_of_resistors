@@ -121,6 +121,7 @@
 
     <script type="text/javascript">
         bag = [];
+        let targetInputElt = document.getElementById("targetInput");
         let bagDisplayElt = document.getElementById("bagDisplay");
         let errorAreaElt = document.getElementById("errorArea");
         let successAreaElt = document.getElementById("successArea");
@@ -160,6 +161,7 @@
         }
 
 
+
         window.addEventListener('load', function() {
             changeBagDisplay();
             let resistorButtons = document.getElementsByClassName("resistor");
@@ -175,33 +177,38 @@
 
             let form = document.getElementById("submitB");
 
+            function checkSoln(resImg) {
+                if (bag.length == 0) {
+                    errorAreaElt.innerHTML = `Bag must have at least one resistor.`;
+                    return;
+                }
+                let target = parseFloat(document.getElementById("targetInput").value);
+
+                let soln = subsetResistor(bag, target);
+                console.log(soln);
+                ctx.clearRect(0, 0, workspace.width, workspace.height);
+                if (!!soln) {
+                    errorAreaElt.innerHTML = "";
+                    let solnStack = soln.steps;
+                    successAreaElt.innerHTML = `Configuration found: ${parseResistorSpec(solnStack)} = ${soln.value}`;
+                    resImgGrp = drawResistorSpec(solnStack, resImg);
+                    resImgGrp.draw(ctx, [30,30]);
+                } else {
+                    successAreaElt.innerHTML = "";
+                    errorAreaElt.innerHTML = `No configuration found for bag:
+                        ${JSON.stringify(bag)}, target: ${target}`;
+                }
+            }
+
             img.onload = function() {
-                event.preventDefault();
                 resImg = new ResistorImage(img, {left: {x: 1/8, y: 1/2}, right: {x: 7/8, y: 1/2}})
                 let initialSteps = drawResistorSpec([[10, 10, '||'], 4, '+'], resImg);
                 initialSteps.draw(ctx,[30,30]);
                 ctx.fillText("(example)", 30, 30+initialSteps.getHeight());
-                form.onclick = function(event) {
-                    event.preventDefault();
-                    if (bag.length == 0) {
-                        errorAreaElt.innerHTML = `Bag must have at least one resistor.`;
-                        return;
-                    }
-                    let target = parseFloat(document.getElementById("targetInput").value);
-
-                    let soln = subsetResistor(bag, target);
-                    console.log(soln);
-                    ctx.clearRect(0, 0, workspace.width, workspace.height);
-                    if (!!soln) {
-                        errorAreaElt.innerHTML = "";
-                        let solnStack = soln.steps;
-                        successAreaElt.innerHTML = `Configuration found: ${parseResistorSpec(solnStack)} = ${soln.value}`;
-                        resImgGrp = drawResistorSpec(solnStack, resImg);
-                        resImgGrp.draw(ctx, [30,30]);
-                    } else {
-                        successAreaElt.innerHTML = "";
-                        errorAreaElt.innerHTML = `No configuration found for bag:
-                            ${JSON.stringify(bag)}, target: ${target}`;
+                form.onclick = () => checkSoln(resImg);
+                targetInputElt.onkeydown = function() {
+                    if (event.key === 'Enter') {
+                        checkSoln(resImg);
                     }
                 }
             }
