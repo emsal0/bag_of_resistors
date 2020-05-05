@@ -145,6 +145,7 @@
                 [${bag.map(f => f.toString() + 'Ω').join(",")}]`;
         }
 
+
         window.addEventListener('load', function() {
             changeBagDisplay();
             let resistorButtons = document.getElementsByClassName("resistor");
@@ -163,6 +164,9 @@
             img.onload = function() {
                 event.preventDefault();
                 resImg = new ResistorImage(img, {left: {x: 1/8, y: 1/2}, right: {x: 7/8, y: 1/2}})
+                let initialSteps = drawResistorSpec([[10, 10, '||'], 4, '+'], resImg);
+                ctx.fillText("(example)", 0, initialSteps.getHeight());
+                initialSteps.draw(ctx,[0,0]);
                 form.onclick = function(event) {
                     event.preventDefault();
                     if (bag.length == 0) {
